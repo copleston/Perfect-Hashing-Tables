@@ -60,19 +60,6 @@ class PerfectHash {
         System.out.println();
     }
 
-    private void insert(int key) {
-        // insert the element at index key
-    }
-
-    private void delete(int key) {
-        // delete the element with key
-    }
-
-    private int locate(int key) {
-        // locate the element with key
-        return 1;
-    }
-
     private int hash(int k) {
         return ((a*k + b) % p) % hashSize;
     }
@@ -166,6 +153,7 @@ class PerfectHash {
             innerTable.add(i, new Vector <Integer>(Arrays.asList(keyAr)));
         }
         printInnerTable();
+
     }
 
     public static void main(String[] args) throws FileNotFoundException {
