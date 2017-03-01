@@ -9,19 +9,22 @@ class PerfectHash {
     int p = 40487, a = 13, b = 1207;
     int hashSize, col, cPairs;
     int[] count;
-    private Vector<Integer> keysIn, outerHash;
-    private Vector<Vector<Integer>> outerTable, innerTable;
+    private ArrayList<Integer> keysIn, outerHash;
+    private ArrayList<ArrayList<Integer>> outerTable, innerTable;
     private Scanner sc;
 
     private PerfectHash(String fileName) {
         readFile(fileName);
         System.out.format("INITIAL OUTER HASH FUNCTION PARAMETERS: a = %d; b = %d; p = %d\n", a, b, p);
+
         findOuterHash();
         findGroupings();
 
-        printCount();
+        // printCount();
 
-        createInnerTable();
+        HashTable ht = new HashTable(hashSize, count);
+        ht.printTable();
+        // createInnerTables();
     }
 
     private void readFile(String name) {
@@ -42,7 +45,7 @@ class PerfectHash {
 
         System.out.println("SETTING HASH TABLE SIZE: " + hashSize);
 
-        keysIn = new Vector<Integer>(); // Must specify Integer type to avoid compilaiton warnings
+        keysIn = new ArrayList<Integer>(); // Must specify Integer type to avoid compilaiton warnings
         while (sc.hasNext()) {
             keysIn.add(sc.nextInt());
         }
@@ -52,7 +55,7 @@ class PerfectHash {
         printArray(keysIn);
     }
 
-    private static void printArray(Vector inArray) {
+    private static void printArray(ArrayList inArray) {
         // for (Integer i: inArray.iterator()) System.out.format("%s ", i.toString());
         for (int i = 0; i < inArray.size(); i++) {
             System.out.format("%s ", inArray.get(i));
@@ -73,7 +76,7 @@ class PerfectHash {
     private void outerHash(int m) {
         col = 1;
         count = new int[m];
-        outerHash = new Vector <Integer>();
+        outerHash = new ArrayList<Integer>();
 
         for (Integer i : keysIn) {
             int h = hash(i);
@@ -107,26 +110,19 @@ class PerfectHash {
         }
     }
 
-    private void printGroupings() {
-        System.out.println("\nKEYS GROUPED ONTO SLOTS:");
+    private void printCount() {
+        System.out.print("\nCollisions at: ");
         for (int i=0; i < hashSize; i++) {
-            System.out.format("grouping slot  %d:  ", i);
-            printArray(outerTable.get(i));
+            System.out.format("%d ", count[i]);
         }
-    }
-
-    private void printInnerTable() {
-        for (int i=0; i < hashSize; i++) {
-            System.out.format("operation slot  %d:  ", i);
-            printArray(innerTable.get(i));
-        }
+        System.out.print("\n\n");
     }
 
     private void findGroupings() {
         // Initialise the outer hashtable: A collection of Vector objects
-        outerTable = new Vector<Vector<Integer>>(hashSize);
+        outerTable = new ArrayList<ArrayList<Integer>>(hashSize);
         for (int i=0; i < hashSize; i++) {
-            outerTable.add(i, new Vector<Integer>());
+            outerTable.add(i, new ArrayList<Integer>());
         }
 
         int index = 0;
@@ -137,23 +133,12 @@ class PerfectHash {
         printGroupings(); // Print the groupings of the outer table
     }
 
-    private void printCount() {
-        System.out.print("\nCollisions at: ");
+    private void printGroupings() {
+        System.out.println("\nKEYS GROUPED ONTO SLOTS:");
         for (int i=0; i < hashSize; i++) {
-            System.out.format("%d ", count[i]);
+            System.out.format("grouping slot  %d:  ", i);
+            printArray(outerTable.get(i));
         }
-        System.out.print("\n\n");
-    }
-
-    private void createInnerTable() {
-        innerTable = new Vector<Vector<Integer>>(hashSize);
-        for (int i=0; i < hashSize; i++) {
-            Integer[] keyAr = new Integer[count[i]*count[i]];
-            Arrays.fill(keyAr, -1);
-            innerTable.add(i, new Vector <Integer>(Arrays.asList(keyAr)));
-        }
-        printInnerTable();
-
     }
 
     public static void main(String[] args) throws FileNotFoundException {
