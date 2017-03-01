@@ -5,11 +5,14 @@ public class HashTable {
     private static int[] count = {1, 0, 3, 1, 0};
     int p = 40487, a = 13, b = 1207;
 
-    public HashTable(int m, int[] count) {
+    public HashTable(ArrayList<ArrayList<Integer>> outerTable, int m, int[] count) {
         this.table = new ArrayList<HashEntry>(m);
         // Construct the inner hash tables, with the new lengths
         for (int i=0; i < m; i++) {
-            table.add(i, new HashEntry(count[i]));
+            HashEntry temp = new HashEntry(count[i], i);
+            temp.findHash(outerTable.get(i));
+            table.add(i, temp);
+            // for each hash entry, call hash
         }
     }
 
@@ -27,16 +30,9 @@ public class HashTable {
     }
 
     public void printTable() {
-        System.out.println();
         for (int i=0; i < table.size(); i++) {
             System.out.format("operation slot  %d:  ", i);
             table.get(i).print();
         }
-    }
-
-    public static void main(String[] args) {
-        HashTable t = new HashTable(5, count);
-        t.printTable();
-
     }
 }

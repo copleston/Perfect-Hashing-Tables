@@ -7,14 +7,16 @@ import java.util.*;
 
 class PerfectHash {
     int p = 40487, a = 13, b = 1207;
-    int hashSize, col, cPairs;
+    int hashSize, col, cPairs, sumPairs;
     int[] count;
     private ArrayList<Integer> keysIn, outerHash;
     private ArrayList<ArrayList<Integer>> outerTable, innerTable;
+    private ArrayList<Command> commands;
     private Scanner sc;
 
-    private PerfectHash(String fileName) {
-        readFile(fileName);
+    private PerfectHash(String keys, String commands) {
+        readData(keys);
+        // readCommands(commands);
         System.out.format("INITIAL OUTER HASH FUNCTION PARAMETERS: a = %d; b = %d; p = %d\n", a, b, p);
 
         findOuterHash();
@@ -22,17 +24,17 @@ class PerfectHash {
 
         // printCount();
 
-        HashTable ht = new HashTable(hashSize, count);
+        HashTable ht = new HashTable(outerTable, hashSize, count);
         ht.printTable();
         // createInnerTables();
     }
 
-    private void readFile(String name) {
+    private void readData(String filename) {
         // Initialise the file and scanner objects
-        File file = new File(name);
+        File data = new File(filename);
 
         try {
-            sc = new Scanner(file);
+            sc = new Scanner(data);
         } catch (FileNotFoundException e) {
             System.err.println("Error reading file: " + e);
         }
@@ -55,6 +57,29 @@ class PerfectHash {
         printArray(keysIn);
     }
 
+    private void readCommands(String filename) {
+        // Instanciate the command container
+        commands = new ArrayList<Command>();
+        // Open and read the command file
+        File data = new File(filename);
+        try {
+            sc = new Scanner(data);
+        } catch (FileNotFoundException e) {
+            System.err.println("Error reading file: " + e);
+        }
+        // Read in commands and add to container
+        while (sc.hasNext()) {
+            // System.out.format("Command: %s \t Operator: %d\n", sc.next(), sc.nextInt());
+            Command com = new Command(sc.next(), sc.nextInt());
+            commands.add(com);
+        }
+        sc.close();
+
+        for (int i=0; i < commands.size(); i++) {
+            System.out.format("Command: %s \t Operator: %d\n", commands.get(i).com, commands.get(i).var);
+        }
+    }
+
     private static void printArray(ArrayList inArray) {
         // for (Integer i: inArray.iterator()) System.out.format("%s ", i.toString());
         for (int i = 0; i < inArray.size(); i++) {
@@ -68,15 +93,16 @@ class PerfectHash {
     }
 
     private void increment() {
-        a = (a + 1) % p;
+        a = (a + 1) % (p);
         if (a == 0) a++;
-        b  = (b + 177) % p;
+        b  = (b + 177) % (p);
     }
 
     private void outerHash(int m) {
-        col = 1;
+        col = 0;
         count = new int[m];
-        outerHash = new ArrayList<Integer>();
+        outerHash = new ArrayList<Integer>(m);
+        cPairs = 0;
 
         for (Integer i : keysIn) {
             int h = hash(i);
@@ -84,7 +110,13 @@ class PerfectHash {
             count[h]++;
             if (count[h] > 1) col++;
         }
-        cPairs = ((col*col)-col)/2;
+
+        // for each collision element. find the cPair of that element
+        for (int j : count) {
+            cPairs = ((col + 1) * col)/2;
+        }
+
+        cPairs = ((col + 1) * col)/2;
     }
 
     private void findOuterHash() {
@@ -93,7 +125,7 @@ class PerfectHash {
         System.out.print("HASHED TO OUTER HASH TABLE AT: ");
         outerHash(hashSize);
         printArray(outerHash);
-
+        printCount();
         do {
             if (count > 0) increment();
             outerHash(hashSize);
@@ -139,9 +171,10 @@ class PerfectHash {
             System.out.format("grouping slot  %d:  ", i);
             printArray(outerTable.get(i));
         }
+        System.out.println();
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        PerfectHash p = new PerfectHash("data2.txt"); // allows to read file
+        PerfectHash p = new PerfectHash("data3.txt", "commands3.txt"); // allows to read file
     }
 }
