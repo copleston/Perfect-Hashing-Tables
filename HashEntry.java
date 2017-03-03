@@ -30,6 +30,26 @@ public class HashEntry {
         this.b = b;
     }
 
+    public void insert(Integer key) {
+        int h = hash((int) key);
+        System.out.format("INNER SLOT: %d\n", h);
+        entry.set(h, key);
+    }
+
+    public int locate(Integer key) {
+        int h = hash((int) key);
+        if (entry.get(h).equals(key)) {
+            return h;
+        } else {
+            return -1;
+        }
+    }
+
+    public void delete(Integer key) {
+        int h = hash((int) key);
+        entry.set(h, -1); // Set the index to the sentinel value to delete
+    }
+
     private void increment() {
         a = (a + 1) % p;
         if (a == 0) a++;
@@ -56,14 +76,14 @@ public class HashEntry {
     public void findHash(ArrayList<Integer> innerGrouping) {
         keysIn = innerGrouping;
         outerHash(length);
+        boolean flag = false;
         while (col > 0) {
+            flag = true;
             increment();
             outerHash(length);
-            // System.out.format("\nslot %d; NUMBER OF PAIRS OF COLLISIONS IN INNER HASH TABLE: %d", slot, col);
         }
-        if (length > 1)
-            System.out.format("slot %d; MODIFIED INNER HASH FUNCTION PARAMETERS: a = %d; b = %d; p %d\n\n", slot, a, b, p);
-
+        if (flag)
+            System.out.format("slot %d; MODIFIED INNER LEVEL HASH FUNCTION PARAMETERS: a = %d; b = %d; p = %d\n", slot, a, b, p);
     }
 
     public void print() {
